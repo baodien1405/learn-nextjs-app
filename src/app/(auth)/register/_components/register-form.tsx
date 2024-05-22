@@ -4,9 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RegisterBody, RegisterBodyType } from '@/schemaValidations/auth.schema'
+import { envConfig } from '@/configs'
 
 export function RegisterForm() {
   const form = useForm<RegisterBodyType>({
@@ -19,8 +20,14 @@ export function RegisterForm() {
     }
   })
 
-  function onSubmit(values: RegisterBodyType) {
-    console.log(values)
+  async function onSubmit(values: RegisterBodyType) {
+    const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`, {
+      body: JSON.stringify(values),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
+    }).then((res) => res.json())
   }
 
   return (
