@@ -73,6 +73,11 @@
   resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/@floating-ui/utils/-/utils-0.2.2.tgz#d8bae93ac8b815b2bd7a98078cf91e2724ef11e5"
   integrity sha1-2LrpOsi4FbK9epgHjPkeJyTvEeU=
 
+"@hookform/resolvers@^3.4.2":
+  version "3.4.2"
+  resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/@hookform/resolvers/-/resolvers-3.4.2.tgz#b69525248c2a9a1b2546411251ea25029915841a"
+  integrity sha1-tpUlJIwqmhslRkESUeolApkVhBo=
+
 "@humanwhocodes/config-array@^0.11.14":
   version "0.11.14"
   resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/@humanwhocodes/config-array/-/config-array-0.11.14.tgz#d78e481a039f7566ecc9660b4ea7fe6b1fec442b"
@@ -321,6 +326,14 @@
   dependencies:
     "@babel/runtime" "^7.13.10"
     "@radix-ui/react-use-layout-effect" "1.0.1"
+
+"@radix-ui/react-label@^2.0.2":
+  version "2.0.2"
+  resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/@radix-ui/react-label/-/react-label-2.0.2.tgz#9c72f1d334aac996fdc27b48a8bdddd82108fb6d"
+  integrity sha1-nHLx0zSqyZb9wntIqL3d2CEI+20=
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/react-primitive" "1.0.3"
 
 "@radix-ui/react-menu@2.0.6":
   version "2.0.6"
@@ -2428,6 +2441,11 @@ react-dom@^18:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
 
+react-hook-form@^7.51.5:
+  version "7.51.5"
+  resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/react-hook-form/-/react-hook-form-7.51.5.tgz#4afbfb819312db9fea23e8237a3a0d097e128b43"
+  integrity sha1-Svv7gZMS25/qI+gjejoNCX4Si0M=
+
 react-is@^16.13.1:
   version "16.13.1"
   resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -3086,3 +3104,8 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha1-ApTrPe4FAo0x7hpfosVWpqrxChs=
+
+zod@^3.23.8:
+  version "3.23.8"
+  resolved "https://pkgs.dev.azure.com/DragonCapital/_packaging/DragonCapital/npm/registry/zod/-/zod-3.23.8.tgz#e37b957b5d52079769fb8097099b592f0ef4067d"
+  integrity sha1-43uVe11SB5dp+4CXCZtZLw70Bn0=
