@@ -6,47 +6,72 @@ import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { RegisterBody, RegisterBodyType } from '@/schemaValidations/auth.schema'
+import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { envConfig } from '@/configs'
+import { useToast } from '@/components/ui/use-toast'
 
-export function RegisterForm() {
-  const form = useForm<RegisterBodyType>({
-    resolver: zodResolver(RegisterBody),
+export function LoginForm() {
+  const { toast } = useToast()
+
+  const form = useForm<LoginBodyType>({
+    resolver: zodResolver(LoginBody),
     defaultValues: {
-      name: '',
       email: '',
-      password: '',
-      confirmPassword: ''
+      password: ''
     }
   })
 
-  async function onSubmit(values: RegisterBodyType) {
-    const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`, {
-      body: JSON.stringify(values),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'POST'
-    }).then((res) => res.json())
+  async function onSubmit(values: LoginBodyType) {
+    try {
+      const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
+        body: JSON.stringify(values),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST'
+      }).then(async (res) => {
+        const payload = await res.json()
+        const data = {
+          status: res.status,
+          payload
+        }
+
+        if (!res.ok) throw data
+
+        return data
+      })
+
+      toast({
+        description: result.payload.message
+      })
+    } catch (error: any) {
+      const errors = error.payload.errors as {
+        field: string
+        message: string
+      }[]
+
+      const status = error.status as number
+
+      if (status === 422) {
+        errors.forEach((error) => {
+          form.setError(error.field as 'email' | 'password', {
+            type: 'server',
+            message: error.message
+          })
+        })
+      } else {
+        toast({
+          title: 'Lỗi!',
+          description: error.payload.message,
+          variant: 'destructive'
+        })
+      }
+    }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-2 max-w-[400px] w-full">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tên</FormLabel>
-              <FormControl>
-                <Input placeholder="Tên" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <FormField
           control={form.control}
           name="email"
@@ -75,22 +100,8 @@ export function RegisterForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nhập lại mật khẩu</FormLabel>
-              <FormControl>
-                <Input placeholder="Nhập lại mật khẩu" type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <Button type="submit" className="!mt-8 w-full">
-          Register
+          Login
         </Button>
       </form>
     </Form>
