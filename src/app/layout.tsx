@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { cookies } from 'next/headers'
 
 import Header from '@/components/header'
-import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
+import { AppProvider, ThemeProvider } from '@/providers'
 
 import './globals.css'
 
@@ -19,13 +20,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = cookies()
+  const sessionToken = cookieStore.get('sessionToken')
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <Toaster />
+
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Header />
-          {children}
+          <AppProvider initialSessionToken={sessionToken?.value}>{children}</AppProvider>
         </ThemeProvider>
       </body>
     </html>

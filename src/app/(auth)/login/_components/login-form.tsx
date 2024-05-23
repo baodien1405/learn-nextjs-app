@@ -9,9 +9,13 @@ import { Input } from '@/components/ui/input'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { envConfig } from '@/configs'
 import { useToast } from '@/components/ui/use-toast'
+import { useAppContext } from '@/providers'
+import { useRouter } from 'next/navigation'
 
 export function LoginForm() {
   const { toast } = useToast()
+  const router = useRouter()
+  const { setSessionToken } = useAppContext()
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -44,6 +48,24 @@ export function LoginForm() {
       toast({
         description: result.payload.message
       })
+
+      const resultFormNextServer = await fetch('/api/auth', {
+        method: 'POST',
+        body: JSON.stringify(result)
+      }).then(async (res) => {
+        const payload = await res.json()
+        const data = {
+          status: res.status,
+          payload
+        }
+
+        if (!res.ok) throw data
+
+        return data
+      })
+
+      setSessionToken(resultFormNextServer.payload.data.token)
+      router.push('/me')
     } catch (error: any) {
       const errors = error.payload.errors as {
         field: string
