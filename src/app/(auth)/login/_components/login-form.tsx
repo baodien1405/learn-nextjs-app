@@ -2,15 +2,15 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
-import { envConfig } from '@/configs'
 import { useToast } from '@/components/ui/use-toast'
 import { useAppContext } from '@/providers'
-import { useRouter } from 'next/navigation'
+import { authService } from '@/services'
 
 export function LoginForm() {
   const { toast } = useToast()
@@ -27,44 +27,14 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginBodyType) {
     try {
-      const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
-        body: JSON.stringify(values),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        method: 'POST'
-      }).then(async (res) => {
-        const payload = await res.json()
-        const data = {
-          status: res.status,
-          payload
-        }
+      const result = await authService.login(values)
 
-        if (!res.ok) throw data
+      toast({ description: result.payload.message })
 
-        return data
-      })
+      await authService.auth({ sessionToken: result.payload.data.token })
 
-      toast({
-        description: result.payload.message
-      })
+      setSessionToken(result.payload.data.token)
 
-      const resultFormNextServer = await fetch('/api/auth', {
-        method: 'POST',
-        body: JSON.stringify(result)
-      }).then(async (res) => {
-        const payload = await res.json()
-        const data = {
-          status: res.status,
-          payload
-        }
-
-        if (!res.ok) throw data
-
-        return data
-      })
-
-      setSessionToken(resultFormNextServer.payload.data.token)
       router.push('/me')
     } catch (error: any) {
       const errors = error.payload.errors as {

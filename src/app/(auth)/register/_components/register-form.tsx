@@ -2,14 +2,21 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RegisterBody, RegisterBodyType } from '@/schemaValidations/auth.schema'
-import { envConfig } from '@/configs'
+import { authService } from '@/services'
+import { useToast } from '@/components/ui/use-toast'
+import { useAppContext } from '@/providers'
 
 export function RegisterForm() {
+  const { toast } = useToast()
+  const router = useRouter()
+  const { setSessionToken } = useAppContext()
+
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
@@ -21,13 +28,39 @@ export function RegisterForm() {
   })
 
   async function onSubmit(values: RegisterBodyType) {
-    const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`, {
-      body: JSON.stringify(values),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'POST'
-    }).then((res) => res.json())
+    try {
+      const result = await authService.register(values)
+
+      toast({ description: result.payload.message })
+
+      await authService.auth({ sessionToken: result.payload.data.token })
+
+      setSessionToken(result.payload.data.token)
+
+      router.push('/me')
+    } catch (error: any) {
+      const errors = error.payload.errors as {
+        field: string
+        message: string
+      }[]
+
+      const status = error.status as number
+
+      if (status === 422) {
+        errors.forEach((error) => {
+          form.setError(error.field as 'email' | 'password', {
+            type: 'server',
+            message: error.message
+          })
+        })
+      } else {
+        toast({
+          title: 'Lỗi!',
+          description: error.payload.message,
+          variant: 'destructive'
+        })
+      }
+    }
   }
 
   return (
