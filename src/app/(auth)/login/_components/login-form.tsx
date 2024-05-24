@@ -9,13 +9,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { useToast } from '@/components/ui/use-toast'
-import { useAppContext } from '@/providers'
 import { authService } from '@/services'
 
 export function LoginForm() {
   const { toast } = useToast()
   const router = useRouter()
-  const { setSessionToken } = useAppContext()
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -32,8 +30,6 @@ export function LoginForm() {
       toast({ description: result.payload.message })
 
       await authService.auth({ sessionToken: result.payload.data.token })
-
-      setSessionToken(result.payload.data.token)
 
       router.push('/me')
     } catch (error: any) {

@@ -12,7 +12,7 @@ export default async function MeProfile() {
 
   return (
     <div className="p-2">
-      <h1>Profile</h1>
+      <h1>MeProfile</h1>
 
       <div>Tên: {result.payload.data.name}</div>
       <div>Email: {result.payload.data.email}</div>

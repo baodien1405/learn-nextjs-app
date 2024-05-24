@@ -8,5 +8,9 @@ export const accountService = {
         Authorization: `Bearer ${sessionToken}`
       }
     })
+  },
+
+  meClient() {
+    return http.get<AccountResType>('/account/me')
   }
 }

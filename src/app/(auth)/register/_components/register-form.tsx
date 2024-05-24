@@ -10,12 +10,10 @@ import { Input } from '@/components/ui/input'
 import { RegisterBody, RegisterBodyType } from '@/schemaValidations/auth.schema'
 import { authService } from '@/services'
 import { useToast } from '@/components/ui/use-toast'
-import { useAppContext } from '@/providers'
 
 export function RegisterForm() {
   const { toast } = useToast()
   const router = useRouter()
-  const { setSessionToken } = useAppContext()
 
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
@@ -34,8 +32,6 @@ export function RegisterForm() {
       toast({ description: result.payload.message })
 
       await authService.auth({ sessionToken: result.payload.data.token })
-
-      setSessionToken(result.payload.data.token)
 
       router.push('/me')
     } catch (error: any) {
