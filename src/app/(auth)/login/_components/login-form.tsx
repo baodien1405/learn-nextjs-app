@@ -3,6 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -10,10 +12,12 @@ import { Input } from '@/components/ui/input'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { useToast } from '@/components/ui/use-toast'
 import { authService } from '@/services'
+import { handleErrorApi } from '@/lib/utils'
 
 export function LoginForm() {
   const { toast } = useToast()
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -25,6 +29,7 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginBodyType) {
     try {
+      setLoading(true)
       const result = await authService.login(values)
 
       toast({ description: result.payload.message })
@@ -33,27 +38,9 @@ export function LoginForm() {
 
       router.push('/me')
     } catch (error: any) {
-      const errors = error.payload.errors as {
-        field: string
-        message: string
-      }[]
-
-      const status = error.status as number
-
-      if (status === 422) {
-        errors.forEach((error) => {
-          form.setError(error.field as 'email' | 'password', {
-            type: 'server',
-            message: error.message
-          })
-        })
-      } else {
-        toast({
-          title: 'Lỗi!',
-          description: error.payload.message,
-          variant: 'destructive'
-        })
-      }
+      handleErrorApi({ error, setError: form.setError })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -88,7 +75,8 @@ export function LoginForm() {
           )}
         />
 
-        <Button type="submit" className="!mt-8 w-full">
+        <Button type="submit" className="!mt-8 w-full" disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Login
         </Button>
       </form>
