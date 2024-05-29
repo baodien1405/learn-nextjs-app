@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers'
 
-import { envConfig } from '@/configs'
 import { Profile } from '@/app/me/_components'
 import { accountService } from '@/services'
 

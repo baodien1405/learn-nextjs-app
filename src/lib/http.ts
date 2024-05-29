@@ -1,4 +1,5 @@
 import { envConfig } from '@/configs'
+import { normalizePath } from '@/lib/utils'
 import { LoginResType, RegisterResType } from '@/schemaValidations/auth.schema'
 
 const ENTITY_ERROR_STATUS = 422
@@ -15,7 +16,7 @@ type EntityErrorPayload = {
   }[]
 }
 
-class HttpError extends Error {
+export class HttpError extends Error {
   status: number
   payload: {
     message: string
@@ -100,10 +101,13 @@ const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url:
     }
   }
 
-  if (['/auth/login', '/auth/register'].includes(url)) {
-    clientSessionToken.value = (payload as LoginResType | RegisterResType).data.token
-  } else if (['/auth/logout'].includes(url)) {
-    clientSessionToken.value = ''
+  if (typeof window !== undefined) {
+    const isMatchPath = ['auth/login', 'auth/register'].some((path) => path === normalizePath(url))
+    if (isMatchPath) {
+      clientSessionToken.value = (payload as LoginResType | RegisterResType).data.token
+    } else if ('auth/logout' === normalizePath(url)) {
+      clientSessionToken.value = ''
+    }
   }
 
   return data
