@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 
-import { Profile } from '@/app/me/_components'
+// import { Profile } from '@/app/me/_components'
 import { accountService } from '@/services'
 
 export default async function MeProfile() {
@@ -13,10 +13,10 @@ export default async function MeProfile() {
     <div className="p-2">
       <h1>MeProfile</h1>
 
-      <div>Tên: {result.payload.data.name}</div>
-      <div>Email: {result.payload.data.email}</div>
+      <div>Tên: {result.payload?.data?.name}</div>
+      <div>Email: {result.payload?.data?.email}</div>
 
-      <Profile />
+      {/* <Profile /> */}
     </div>
   )
 }

@@ -29,12 +29,13 @@ export const authService = {
     )
   },
 
-  logoutFromNextClientToNextServer() {
+  logoutFromNextClientToNextServer(force?: boolean, signal?: AbortSignal | undefined) {
     return http.post(
       '/api/auth/logout',
-      {},
+      { force },
       {
-        baseUrl: ''
+        baseUrl: '',
+        signal
       }
     )
   }

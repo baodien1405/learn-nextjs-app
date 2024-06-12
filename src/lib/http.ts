@@ -1,8 +1,10 @@
 import { envConfig } from '@/configs'
 import { normalizePath } from '@/lib/utils'
 import { LoginResType, RegisterResType } from '@/schemaValidations/auth.schema'
+import { redirect } from 'next/navigation'
 
 const ENTITY_ERROR_STATUS = 422
+const AUTHENTICATION_ERROR_STATUS = 401
 
 type CustomOptions = Omit<RequestInit, 'method'> & {
   baseUrl?: string
@@ -59,6 +61,10 @@ class ClientSessionToken {
 
 export const clientSessionToken = new ClientSessionToken()
 
+let clientLogoutRequest: null | Promise<any>
+
+export const isClient = typeof window !== 'undefined'
+
 const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, options?: CustomOptions) => {
   const body = options?.body ? JSON.stringify(options.body) : undefined
 
@@ -96,12 +102,29 @@ const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url:
           payload: EntityErrorPayload
         }
       )
+    } else if (res.status === AUTHENTICATION_ERROR_STATUS) {
+      // Handle auto logout from next client
+      if (isClient) {
+        if (!clientLogoutRequest) {
+          clientLogoutRequest = fetch('/api/auth/logout', {
+            method: 'POST',
+            body: JSON.stringify({ force: true }),
+            headers: {}
+          })
+          await clientLogoutRequest
+          clientSessionToken.value = ''
+          location.href = '/login'
+        }
+      } else {
+        const sessionToken = (options?.headers as any)?.Authorization.split('Bearer ')[1]
+        redirect(`/logout?sessionToken=${sessionToken}`)
+      }
     } else {
       throw new HttpError(data)
     }
   }
 
-  if (typeof window !== undefined) {
+  if (isClient) {
     const isMatchPath = ['auth/login', 'auth/register'].some((path) => path === normalizePath(url))
     if (isMatchPath) {
       clientSessionToken.value = (payload as LoginResType | RegisterResType).data.token
