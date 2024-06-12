@@ -1,5 +1,5 @@
 import { http } from '@/lib/http'
-import { AccountResType } from '@/schemaValidations/account.schema'
+import { AccountResType, UpdateMeBodyType } from '@/schemaValidations/account.schema'
 
 export const accountService = {
   me(sessionToken: string) {
@@ -12,5 +12,9 @@ export const accountService = {
 
   meClient() {
     return http.get<AccountResType>('/account/me')
+  },
+
+  updateMe(body: UpdateMeBodyType) {
+    return http.put<AccountResType>('/account/me', body)
   }
 }

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 
-// import { Profile } from '@/app/me/_components'
 import { accountService } from '@/services'
+import { ProfileForm } from '@/app/me/_components'
 
 export default async function MeProfile() {
   const cookieStore = cookies()
@@ -13,10 +13,9 @@ export default async function MeProfile() {
     <div className="p-2">
       <h1>MeProfile</h1>
 
-      <div>Tên: {result.payload?.data?.name}</div>
-      <div>Email: {result.payload?.data?.email}</div>
+      <h2>{result.payload.data.name}</h2>
 
-      {/* <Profile /> */}
+      <ProfileForm profile={result.payload.data} />
     </div>
   )
 }
