@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 
 import Header from '@/components/header'
 import { Toaster } from '@/components/ui/toaster'
+import SlideSession from '@/components/slide-session'
 import { AppProvider, ThemeProvider } from '@/providers'
 
 import './globals.css'
@@ -30,7 +31,10 @@ export default function RootLayout({
 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Header />
-          <AppProvider initialSessionToken={sessionToken?.value}>{children}</AppProvider>
+          <AppProvider initialSessionToken={sessionToken?.value}>
+            {children}
+            <SlideSession />
+          </AppProvider>
         </ThemeProvider>
       </body>
     </html>

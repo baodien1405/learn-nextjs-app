@@ -12,7 +12,7 @@ export function AppProvider({
   initialSessionToken?: string
 }) {
   useState(() => {
-    if (typeof window !== undefined) {
+    if (typeof window !== 'undefined') {
       clientSessionToken.value = initialSessionToken
     }
   })

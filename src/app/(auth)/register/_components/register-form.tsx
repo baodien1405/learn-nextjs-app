@@ -36,7 +36,10 @@ export function RegisterForm() {
 
       toast({ description: result.payload.message })
 
-      await authService.auth({ sessionToken: result.payload.data.token })
+      await authService.auth({
+        sessionToken: result.payload.data.token,
+        expiresAt: result.payload.data.token
+      })
 
       router.push('/me')
     } catch (error: any) {

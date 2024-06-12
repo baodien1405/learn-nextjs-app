@@ -3,24 +3,7 @@ import { cookies } from 'next/headers'
 import { HttpError } from '@/lib/http'
 import { authService } from '@/services'
 
-export async function POST(request: Request) {
-  const res = await request.json()
-  const force = res.force as boolean | undefined
-
-  if (force) {
-    return Response.json(
-      {
-        message: 'Force logout success'
-      },
-      {
-        status: 200,
-        headers: {
-          'Set-Cookie': `sessionToken=; Path=/; HttpOnly; Max-Age=0`
-        }
-      }
-    )
-  }
-
+export async function POST() {
   const cookieStore = cookies()
   const sessionToken = cookieStore.get('sessionToken')
 
@@ -28,18 +11,19 @@ export async function POST(request: Request) {
     return Response.json(
       { message: 'Không nhận được sessionToken' },
       {
-        status: 401
+        status: 400
       }
     )
   }
 
   try {
-    const result = await authService.logoutFromNextServerToServer(sessionToken.value)
+    const res = await authService.slideSessionFromNextServerToServer(sessionToken.value)
+    const newExpiredDate = new Date(res.payload.data.expiresAt).toUTCString()
 
-    return Response.json(result.payload, {
+    return Response.json(res.payload, {
       status: 200,
       headers: {
-        'Set-Cookie': `sessionToken=; Path=/; HttpOnly; Max-Age=0`
+        'Set-Cookie': `sessionToken=${sessionToken.value}; Path=/; HttpOnly; Expires=${newExpiredDate}; SameSite=Lax; Secure`
       }
     })
   } catch (error) {

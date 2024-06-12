@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { authService } from '@/services'
 
 export function LogoutButton() {
   const router = useRouter()
+  const pathname = usePathname()
   const [loading, setLoading] = useState(false)
 
   const handleLogout = async () => {
@@ -21,6 +22,8 @@ export function LogoutButton() {
       handleErrorApi({ error })
     } finally {
       setLoading(false)
+      await authService.logoutFromNextClientToNextServer(true)
+      router.push(`/login?redirectForm=${pathname}`)
     }
   }
 
