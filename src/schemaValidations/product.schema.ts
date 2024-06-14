@@ -19,6 +19,8 @@ export const ProductSchema = z.object({
   updatedAt: z.date()
 })
 
+export type ProductType = z.TypeOf<typeof ProductSchema>
+
 export const ProductRes = z.object({
   data: ProductSchema,
   message: z.string()
