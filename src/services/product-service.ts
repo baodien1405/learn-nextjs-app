@@ -1,5 +1,4 @@
 import { http } from '@/lib/http'
-import { AccountResType, UpdateMeBodyType } from '@/schemaValidations/account.schema'
 import {
   CreateProductBodyType,
   ProductListResType,
@@ -22,5 +21,9 @@ export const productService = {
 
   update(id: number, body: UpdateProductBodyType) {
     return http.put<ProductResType>(`/products/${id}`, body)
+  },
+
+  uploadImage(body: FormData) {
+    return http.put<{ message: string; data: string }>(`/media/upload`, body)
   }
 }

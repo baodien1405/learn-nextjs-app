@@ -79,12 +79,21 @@ let clientLogoutRequest: null | Promise<any>
 export const isClient = typeof window !== 'undefined'
 
 const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, options?: CustomOptions) => {
-  const body = options?.body ? JSON.stringify(options.body) : undefined
+  const body = options?.body
+    ? options.body instanceof FormData
+      ? options.body
+      : JSON.stringify(options.body)
+    : undefined
 
-  const baseHeaders = {
-    'Content-Type': 'application/json',
-    Authorization: clientSessionToken.value ? `Bearer ${clientSessionToken.value}` : ''
-  }
+  const baseHeaders =
+    body instanceof FormData
+      ? {
+          Authorization: clientSessionToken.value ? `Bearer ${clientSessionToken.value}` : ''
+        }
+      : {
+          'Content-Type': 'application/json',
+          Authorization: clientSessionToken.value ? `Bearer ${clientSessionToken.value}` : ''
+        }
 
   const baseUrl = options?.baseUrl === undefined ? envConfig.NEXT_PUBLIC_API_ENDPOINT : options.baseUrl
 
@@ -95,7 +104,7 @@ const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url:
     headers: {
       ...baseHeaders,
       ...options?.headers
-    },
+    } as any,
     body,
     method
   })
