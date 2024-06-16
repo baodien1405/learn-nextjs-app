@@ -12,7 +12,9 @@ export const productService = {
   },
 
   get(id: string) {
-    return http.get<ProductResType>(`/products/${id}`)
+    return http.get<ProductResType>(`/products/${id}`, {
+      cache: 'no-store'
+    })
   },
 
   add(body: CreateProductBodyType) {
@@ -24,6 +26,6 @@ export const productService = {
   },
 
   uploadImage(body: FormData) {
-    return http.put<{ message: string; data: string }>(`/media/upload`, body)
+    return http.post<{ message: string; data: string }>(`/media/upload`, body)
   }
 }

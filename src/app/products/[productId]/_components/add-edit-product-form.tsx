@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Image from 'next/image'
 
@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import { handleErrorApi } from '@/lib/utils'
 import { ProductType, UpdateProductBody, UpdateProductBodyType } from '@/schemaValidations/product.schema'
-import { productService } from '@/services/product-service'
+import { productService } from '@/services'
 
 interface AddEditProductFormProps {
   initialValues?: Partial<ProductType>
@@ -26,6 +26,7 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [file, setFile] = useState<File | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const form = useForm<ProductType>({
     resolver: zodResolver(UpdateProductBody),
@@ -38,27 +39,51 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
     }
   })
 
+  const image = form.watch('image')
+
   async function onSubmit(values: UpdateProductBodyType) {
-    console.log('🚀 ~ onSubmit ~ values:', values)
-    // try {
-    //   setLoading(true)
+    try {
+      setLoading(true)
 
-    //   let response
-    //   if (initialValues?.id) {
-    //     response = await productService.update(initialValues.id, values)
-    //   } else {
-    //     response = await productService.add(values)
-    //   }
+      let response
 
-    //   console.log('🚀 ~ onSubmit ~ response:', response)
-    //   toast({ description: response?.payload?.message })
+      if (initialValues?.id) {
+        let payload = values
 
-    //   router.push('/products')
-    // } catch (error: any) {
-    //   handleErrorApi({ error, setError: form.setError })
-    // } finally {
-    //   setLoading(false)
-    // }
+        if (file) {
+          const formData = new FormData()
+          formData.append('file', file as Blob)
+
+          const uploadImageResult = await productService.uploadImage(formData)
+
+          const imageUrl = uploadImageResult.payload.data
+          payload = {
+            ...values,
+            image: imageUrl
+          }
+        }
+
+        response = await productService.update(initialValues.id, payload)
+      } else {
+        const formData = new FormData()
+        formData.append('file', file as Blob)
+
+        const uploadImageResult = await productService.uploadImage(formData)
+        const imageUrl = uploadImageResult.payload.data
+
+        response = await productService.add({
+          ...values,
+          image: imageUrl
+        })
+      }
+
+      toast({ description: response?.payload?.message })
+      router.push('/products')
+    } catch (error: any) {
+      handleErrorApi({ error, setError: form.setError })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -122,6 +147,7 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
                   id="picture"
                   type="file"
                   accept="image/*"
+                  ref={inputRef}
                   onChange={(e) => {
                     const file = e.target.files?.[0]
                     if (file) {
@@ -136,10 +162,10 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
           )}
         />
 
-        {file && (
+        {(file || image) && (
           <div>
             <Image
-              src={URL.createObjectURL(file)}
+              src={file ? URL.createObjectURL(file) : image}
               width={128}
               height={128}
               alt="preview"
@@ -153,6 +179,9 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
               onClick={() => {
                 setFile(null)
                 form.setValue('image', '')
+                if (inputRef.current) {
+                  inputRef.current.value = ''
+                }
               }}
             >
               Remove Image
@@ -162,7 +191,7 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
 
         <Button type="submit" className="!mt-8 w-full" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save
+          {initialValues?.id ? 'Save' : 'Add'}
         </Button>
       </form>
     </Form>
