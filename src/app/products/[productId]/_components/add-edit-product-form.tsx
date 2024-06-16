@@ -93,7 +93,6 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
         noValidate
         className="space-y-2 max-w-[400px] w-full px-4"
       >
-        <h1 className="font-bold text-center">Add</h1>
         <FormField
           control={form.control}
           name="name"

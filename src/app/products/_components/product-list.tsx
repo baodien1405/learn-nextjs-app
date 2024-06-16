@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ProductType } from '@/schemaValidations/product.schema'
 import { Button } from '@/components/ui/button'
+import { DeleteProductButton } from '@/app/products/_components'
 
 interface ProductListProps {
   productList: ProductType[]
@@ -45,9 +46,7 @@ export function ProductList({ productList }: ProductListProps) {
                       Edit
                     </Button>
                   </Link>
-                  <Button size="sm" variant="destructive">
-                    Delete
-                  </Button>
+                  <DeleteProductButton product={product} />
                 </div>
               </TableCell>
             </TableRow>

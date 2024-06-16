@@ -20,6 +20,8 @@ export default async function AddEditProductPage({ params }: AddEditProductPageP
 
   return (
     <div>
+      <h1 className="font-bold text-center">{`${isAddMode ? 'Add' : 'Edit'} Product`}</h1>
+
       <AddEditProductForm initialValues={result?.payload?.data} />
     </div>
   )

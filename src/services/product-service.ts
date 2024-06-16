@@ -1,4 +1,5 @@
 import { http } from '@/lib/http'
+import { MessageResType } from '@/schemaValidations/common.schema'
 import {
   CreateProductBodyType,
   ProductListResType,
@@ -8,7 +9,9 @@ import {
 
 export const productService = {
   getAll() {
-    return http.get<ProductListResType>('/products')
+    return http.get<ProductListResType>('/products', {
+      cache: 'no-store'
+    })
   },
 
   get(id: string) {
@@ -23,6 +26,10 @@ export const productService = {
 
   update(id: number, body: UpdateProductBodyType) {
     return http.put<ProductResType>(`/products/${id}`, body)
+  },
+
+  delete(id: number) {
+    return http.delete<MessageResType>(`/products/${id}`)
   },
 
   uploadImage(body: FormData) {
