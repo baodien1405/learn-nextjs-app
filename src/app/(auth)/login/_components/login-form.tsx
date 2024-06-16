@@ -39,7 +39,8 @@ export function LoginForm() {
         expiresAt: result.payload.data.token
       })
 
-      router.push('/me')
+      router.push('/')
+      router.refresh()
     } catch (error: any) {
       handleErrorApi({ error, setError: form.setError })
     } finally {

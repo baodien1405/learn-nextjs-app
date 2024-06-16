@@ -24,6 +24,7 @@ export function LogoutButton() {
       setLoading(false)
       await authService.logoutFromNextClientToNextServer(true)
       router.push(`/login?redirectForm=${pathname}`)
+      router.refresh()
     }
   }
 
