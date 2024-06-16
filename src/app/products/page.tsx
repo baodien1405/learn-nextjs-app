@@ -1,7 +1,13 @@
-export default function ProductsPage() {
+import { ProductList } from '@/app/products/_components'
+import { productService } from '@/services'
+
+export default async function ProductsPage() {
+  const response = await productService.getAll()
+  const productList = response.payload?.data || []
+
   return (
-    <div>
-      <h1>ProductsPage</h1>
+    <div className="px-4">
+      <ProductList productList={productList} />
     </div>
   )
 }
