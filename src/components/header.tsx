@@ -15,7 +15,9 @@ export default async function Header({ user }: HeaderProps) {
         <li>
           <Link href="/products">Products</Link>
         </li>
-
+        <li>
+          <LogoutButton />
+        </li>
         {user ? (
           <>
             <li>

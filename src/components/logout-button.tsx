@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { handleErrorApi } from '@/lib/utils'
 import { authService } from '@/services'
+import { removeSessionTokenExpiresAtToLS, removeSessionTokenToLS } from '@/lib/common'
 
 export function LogoutButton() {
   const router = useRouter()
@@ -20,11 +21,14 @@ export function LogoutButton() {
       router.push('/login')
     } catch (error) {
       handleErrorApi({ error })
+      authService.logoutFromNextClientToNextServer(true).then((res) => {
+        router.push(`/login?redirectForm=${pathname}`)
+      })
     } finally {
       setLoading(false)
-      await authService.logoutFromNextClientToNextServer(true)
-      router.push(`/login?redirectForm=${pathname}`)
       router.refresh()
+      removeSessionTokenToLS()
+      removeSessionTokenExpiresAtToLS()
     }
   }
 

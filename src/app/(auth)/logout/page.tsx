@@ -1,12 +1,12 @@
 'use client'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 
 import { authService } from '@/services'
-import { clientSessionToken } from '@/lib/http'
+import { getSessionTokenFromLS } from '@/lib/common'
 
-export default function Logout() {
+function LogoutLogic() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -23,7 +23,7 @@ export default function Logout() {
       } catch (error) {}
     }
 
-    if (sessionToken === clientSessionToken.value) handleLogout()
+    if (sessionToken === getSessionTokenFromLS()) handleLogout()
 
     return () => controller.abort()
   }, [router, sessionToken, pathname])
@@ -32,5 +32,13 @@ export default function Logout() {
     <div>
       <h1>Logout...</h1>
     </div>
+  )
+}
+
+export default function LogoutPage() {
+  return (
+    <Suspense>
+      <LogoutLogic />
+    </Suspense>
   )
 }

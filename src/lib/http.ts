@@ -55,7 +55,11 @@ let clientLogoutRequest: null | Promise<any>
 
 export const isClient = typeof window !== 'undefined'
 
-const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, options?: CustomOptions) => {
+const request = async <Response>(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  url: string,
+  options?: CustomOptions
+) => {
   let body: FormData | string | undefined = undefined
 
   if (options?.body instanceof FormData) {
@@ -156,6 +160,9 @@ export const http = {
   },
   put<Response>(url: string, body: any, options?: Omit<CustomOptions, 'body'>) {
     return request<Response>('PUT', url, { ...options, body })
+  },
+  patch<Response>(url: string, body: any, options?: Omit<CustomOptions, 'body'>) {
+    return request<Response>('PATCH', url, { ...options, body })
   },
   delete<Response>(url: string, options?: Omit<CustomOptions, 'body'>) {
     return request<Response>('DELETE', url, { ...options })
