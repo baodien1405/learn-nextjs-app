@@ -2,7 +2,6 @@
 
 import { Dispatch, ReactNode, SetStateAction, createContext, useState } from 'react'
 
-import { clientSessionToken } from '@/lib/http'
 import { AccountResType } from '@/schemaValidations/account.schema'
 
 type User = AccountResType['data'] | null
@@ -17,21 +16,8 @@ const AppContext = createContext<AppContextInterface>({
   setUser: () => {}
 })
 
-export function AppProvider({
-  children,
-  initialSessionToken = '',
-  user: userProps
-}: {
-  children: ReactNode
-  initialSessionToken?: string
-  user: User
-}) {
+export function AppProvider({ children, user: userProps }: { children: ReactNode; user: User }) {
   const [user, setUser] = useState(userProps)
-  useState(() => {
-    if (typeof window !== 'undefined') {
-      clientSessionToken.value = initialSessionToken
-    }
-  })
 
   return <AppContext.Provider value={{ user, setUser }}>{children}</AppContext.Provider>
 }

@@ -1,7 +1,15 @@
+import { redirect } from 'next/navigation'
+
 import { envConfig } from '@/configs'
+import {
+  getSessionTokenFromLS,
+  removeSessionTokenExpiresAtToLS,
+  removeSessionTokenToLS,
+  setSessionTokenExpiresAtToLS,
+  setSessionTokenToLS
+} from '@/lib/common'
 import { normalizePath } from '@/lib/utils'
 import { LoginResType, RegisterResType } from '@/schemaValidations/auth.schema'
-import { redirect } from 'next/navigation'
 
 const ENTITY_ERROR_STATUS = 422
 const AUTHENTICATION_ERROR_STATUS = 401
@@ -43,57 +51,27 @@ export class EntityError extends HttpError {
   }
 }
 
-class ClientSessionToken {
-  private token = ''
-  private _expiresAt = new Date().toISOString()
-
-  get value() {
-    return this.token
-  }
-
-  set value(token: string) {
-    if (typeof window === 'undefined') {
-      throw new Error('Cannot set token on server side')
-    }
-
-    this.token = token
-  }
-
-  get expiresAt() {
-    return this._expiresAt
-  }
-
-  set expiresAt(expiresAt: string) {
-    if (typeof window === 'undefined') {
-      throw new Error('Cannot set expiresAt on server side')
-    }
-
-    this._expiresAt = expiresAt
-  }
-}
-
-export const clientSessionToken = new ClientSessionToken()
-
 let clientLogoutRequest: null | Promise<any>
 
 export const isClient = typeof window !== 'undefined'
 
 const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, options?: CustomOptions) => {
-  const body = options?.body
-    ? options.body instanceof FormData
-      ? options.body
-      : JSON.stringify(options.body)
-    : undefined
+  let body: FormData | string | undefined = undefined
 
-  const baseHeaders =
-    body instanceof FormData
-      ? {
-          Authorization: clientSessionToken.value ? `Bearer ${clientSessionToken.value}` : ''
-        }
-      : {
-          'Content-Type': 'application/json',
-          Authorization: clientSessionToken.value ? `Bearer ${clientSessionToken.value}` : ''
-        }
+  if (options?.body instanceof FormData) {
+    body = options.body
+  } else if (options?.body) {
+    body = JSON.stringify(options.body)
+  }
+
+  const baseHeaders: { [key: string]: string } = body instanceof FormData ? {} : { 'Content-Type': 'application/json' }
+
+  if (isClient) {
+    const sessionToken = getSessionTokenFromLS()
+    if (sessionToken) {
+      baseHeaders.Authorization = `Bearer ${sessionToken}`
+    }
+  }
 
   const baseUrl = options?.baseUrl === undefined ? envConfig.NEXT_PUBLIC_API_ENDPOINT : options.baseUrl
 
@@ -133,10 +111,16 @@ const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url:
             body: JSON.stringify({ force: true }),
             headers: {}
           })
-          await clientLogoutRequest
-          clientSessionToken.value = ''
-          clientSessionToken.expiresAt = new Date().toISOString()
-          location.href = '/login'
+
+          try {
+            await clientLogoutRequest
+          } catch (error) {
+          } finally {
+            removeSessionTokenToLS()
+            removeSessionTokenExpiresAtToLS()
+            clientLogoutRequest = null
+            location.href = '/login'
+          }
         }
       } else {
         const sessionToken = (options?.headers as any)?.Authorization.split('Bearer ')[1]
@@ -151,11 +135,12 @@ const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url:
     const isMatchPath = ['auth/login', 'auth/register'].some((path) => path === normalizePath(url))
 
     if (isMatchPath) {
-      clientSessionToken.value = (payload as LoginResType | RegisterResType).data.token
-      clientSessionToken.expiresAt = (payload as LoginResType | RegisterResType).data.expiresAt
+      const { token, expiresAt } = (payload as LoginResType | RegisterResType).data
+      setSessionTokenToLS(token)
+      setSessionTokenExpiresAtToLS(expiresAt)
     } else if ('auth/logout' === normalizePath(url)) {
-      clientSessionToken.value = ''
-      clientSessionToken.expiresAt = new Date().toISOString()
+      removeSessionTokenToLS()
+      removeSessionTokenExpiresAtToLS()
     }
   }
 

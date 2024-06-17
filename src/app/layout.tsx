@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { cookies } from 'next/headers'
 
-import Header from '@/components/header'
-import { Toaster } from '@/components/ui/toaster'
-import SlideSession from '@/components/slide-session'
-import { AppProvider, ThemeProvider } from '@/providers'
-import { accountService } from '@/services'
 import { baseOpenGraph } from '@/app/shared-metadata'
+import Header from '@/components/header'
+import SlideSession from '@/components/slide-session'
+import { Toaster } from '@/components/ui/toaster'
+import { AppProvider, ThemeProvider } from '@/providers'
+import { AccountResType } from '@/schemaValidations/account.schema'
 
 import './globals.css'
 
@@ -27,19 +26,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookieStore = cookies()
-  const sessionToken = cookieStore.get('sessionToken')
-
-  let user = null
-
-  if (sessionToken?.value) {
-    try {
-      const response = await accountService.me(sessionToken?.value)
-      user = response.payload.data
-    } catch (error) {
-      user = null
-    }
-  }
+  let user: AccountResType['data'] | null = null
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -47,7 +34,7 @@ export default async function RootLayout({
         <Toaster />
 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <AppProvider initialSessionToken={sessionToken?.value} user={user}>
+          <AppProvider user={user}>
             <Header user={user} />
             {children}
             <SlideSession />
