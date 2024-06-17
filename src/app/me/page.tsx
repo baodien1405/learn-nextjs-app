@@ -1,7 +1,12 @@
 import { cookies } from 'next/headers'
+import { Metadata } from 'next'
 
 import { accountService } from '@/services'
 import { ProfileForm } from '@/app/me/_components'
+
+export const metadata: Metadata = {
+  title: 'Profile'
+}
 
 export default async function MeProfile() {
   const cookieStore = cookies()

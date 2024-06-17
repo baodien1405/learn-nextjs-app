@@ -1,9 +1,15 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
+import { Metadata } from 'next'
 
 import { ProductList } from '@/app/products/_components'
 import { Button } from '@/components/ui/button'
 import { productService } from '@/services'
+
+export const metadata: Metadata = {
+  title: 'Products',
+  description: 'This is product list of ShopApp, create by Bao Dien'
+}
 
 export default async function ProductsPage() {
   const response = await productService.getAll()

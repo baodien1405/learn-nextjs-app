@@ -1,16 +1,31 @@
 import Image from 'next/image'
+import { cache } from 'react'
 
 import { productService } from '@/services'
+import { Metadata, ResolvingMetadata } from 'next'
 
-interface ProductDetailsPageProps {
+type Props = {
   params: { productId: string }
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export default async function ProductDetailsPage({ params }: ProductDetailsPageProps) {
+const getProductDetails = cache(productService.get)
+
+export async function generateMetadata({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+  const { payload } = await getProductDetails(params.productId)
+  const product = payload?.data
+
+  return {
+    title: product.name,
+    description: product.description
+  }
+}
+
+export default async function ProductDetailsPage({ params }: Props) {
   let product = null
 
   try {
-    const { payload } = await productService.get(params.productId)
+    const { payload } = await getProductDetails(params.productId)
     product = payload?.data
   } catch (error) {}
 

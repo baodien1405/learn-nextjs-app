@@ -1,12 +1,17 @@
+import { Metadata } from 'next'
+import { cache } from 'react'
+
 import { AddEditProductForm } from '@/app/products/[productId]/_components'
 import { productService } from '@/services/product-service'
 
-interface AddEditProductPageProps {
+interface Props {
   params: { productId: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export default async function AddEditProductPage({ params }: AddEditProductPageProps) {
+const getProductDetails = cache(productService.get)
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isAddMode = params.productId === 'add'
   let result
 
@@ -14,7 +19,27 @@ export default async function AddEditProductPage({ params }: AddEditProductPageP
     if (isAddMode) {
       result = null
     } else {
-      result = await productService.get(params.productId)
+      result = await getProductDetails(params.productId)
+    }
+  } catch (error) {
+    result = null
+  }
+
+  return {
+    title: isAddMode ? 'Add product' : `Edit product: ${result?.payload?.data?.name}`,
+    description: isAddMode ? 'Add your favorite product' : result?.payload?.data?.description
+  }
+}
+
+export default async function AddEditProductPage({ params }: Props) {
+  const isAddMode = params.productId === 'add'
+  let result
+
+  try {
+    if (isAddMode) {
+      result = null
+    } else {
+      result = await getProductDetails(params.productId)
     }
   } catch (error) {}
 
