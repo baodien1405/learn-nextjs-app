@@ -1,8 +1,10 @@
 import Image from 'next/image'
 import { cache } from 'react'
+import { Metadata } from 'next'
 
 import { productService } from '@/services'
-import { Metadata, ResolvingMetadata } from 'next'
+import { envConfig } from '@/configs'
+import { baseOpenGraph } from '@/app/shared-metadata'
 
 type Props = {
   params: { productId: string }
@@ -11,13 +13,28 @@ type Props = {
 
 const getProductDetails = cache(productService.get)
 
-export async function generateMetadata({ params, searchParams }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { payload } = await getProductDetails(params.productId)
   const product = payload?.data
+  const url = `${envConfig.NEXT_PUBLIC_URL}/products/${product.id}/details`
 
   return {
     title: product.name,
-    description: product.description
+    description: product.description,
+    openGraph: {
+      ...baseOpenGraph,
+      title: product.name,
+      description: product.description,
+      url,
+      images: [
+        {
+          url: product.image
+        }
+      ]
+    },
+    alternates: {
+      canonical: url
+    }
   }
 }
 
@@ -27,7 +44,9 @@ export default async function ProductDetailsPage({ params }: Props) {
   try {
     const { payload } = await getProductDetails(params.productId)
     product = payload?.data
-  } catch (error) {}
+  } catch (error) {
+    product = null
+  }
 
   if (!product) {
     return null

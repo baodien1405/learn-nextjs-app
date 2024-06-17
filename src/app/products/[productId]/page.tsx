@@ -41,7 +41,9 @@ export default async function AddEditProductPage({ params }: Props) {
     } else {
       result = await getProductDetails(params.productId)
     }
-  } catch (error) {}
+  } catch (error) {
+    result = null
+  }
 
   return (
     <div>

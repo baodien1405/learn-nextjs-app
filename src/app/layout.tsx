@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster'
 import SlideSession from '@/components/slide-session'
 import { AppProvider, ThemeProvider } from '@/providers'
 import { accountService } from '@/services'
+import { baseOpenGraph } from '@/app/shared-metadata'
 
 import './globals.css'
 
@@ -17,7 +18,8 @@ export const metadata: Metadata = {
     template: '%s | ShopApp',
     default: 'ShopApp'
   },
-  description: 'Create by Bao Dien'
+  description: 'Create by Bao Dien',
+  openGraph: baseOpenGraph
 }
 
 export default async function RootLayout({
