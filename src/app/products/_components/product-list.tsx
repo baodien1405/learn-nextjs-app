@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ProductType } from '@/schemaValidations/product.schema'
@@ -11,6 +12,10 @@ interface ProductListProps {
 }
 
 export function ProductList({ productList }: ProductListProps) {
+  const cookieStore = cookies()
+  const sessionToken = cookieStore.get('sessionToken')
+  const isAuthenticated = Boolean(sessionToken?.value)
+
   return (
     <div>
       <Table>
@@ -22,7 +27,7 @@ export function ProductList({ productList }: ProductListProps) {
             <TableHead>Product Name</TableHead>
             <TableHead>Product Description</TableHead>
             <TableHead>Product Price</TableHead>
-            <TableHead>Actions</TableHead>
+            {isAuthenticated && <TableHead>Actions</TableHead>}
           </TableRow>
         </TableHeader>
 
@@ -39,16 +44,18 @@ export function ProductList({ productList }: ProductListProps) {
               <TableCell>{product.description}</TableCell>
               <TableCell>{product.price}</TableCell>
 
-              <TableCell>
-                <div className="gap-2 flex">
-                  <Link href={`/products/${product.id}`}>
-                    <Button size="sm" variant="outline">
-                      Edit
-                    </Button>
-                  </Link>
-                  <DeleteProductButton product={product} />
-                </div>
-              </TableCell>
+              {isAuthenticated && (
+                <TableCell>
+                  <div className="gap-2 flex">
+                    <Link href={`/products/${product.id}`}>
+                      <Button size="sm" variant="outline">
+                        Edit
+                      </Button>
+                    </Link>
+                    <DeleteProductButton product={product} />
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

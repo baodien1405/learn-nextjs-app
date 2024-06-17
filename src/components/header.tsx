@@ -1,29 +1,26 @@
 import Link from 'next/link'
 
-import { ModeToggle } from '@/components/mode-toggle'
 import { LogoutButton } from '@/components/logout-button'
-import { cookies } from 'next/headers'
-import { accountService } from '@/services'
+import { ModeToggle } from '@/components/mode-toggle'
+import { AccountResType } from '@/schemaValidations/account.schema'
 
-export default async function Header() {
-  const cookieStore = cookies()
-  const sessionToken = cookieStore.get('sessionToken')
+interface HeaderProps {
+  user: AccountResType['data'] | null
+}
 
-  let user = null
-
-  if (sessionToken?.value) {
-    try {
-      const response = await accountService.me(sessionToken?.value)
-      user = response.payload.data
-    } catch (error) {}
-  }
-
+export default async function Header({ user }: HeaderProps) {
   return (
     <div className="flex gap-5 items-center justify-end p-2">
       <ul className="flex gap-4 items-center">
+        <li>
+          <Link href="/products">Products</Link>
+        </li>
+
         {user ? (
           <>
-            <li>Hello everyone! I am {user.name}</li>
+            <li>
+              <Link href="/me">Hello everyone! I am {user.name}</Link>
+            </li>
             <li>
               <LogoutButton />
             </li>
