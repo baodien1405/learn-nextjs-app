@@ -36,5 +36,11 @@ export const productService = {
 
   uploadImage(body: FormData) {
     return http.post<{ message: string; data: string }>(`/media/upload`, body)
+  },
+
+  revalidateProductListFromNextClientToNextServer() {
+    return http.get<{ now: number; revalidated: boolean }>('/api/products/revalidate', {
+      baseUrl: ''
+    })
   }
 }

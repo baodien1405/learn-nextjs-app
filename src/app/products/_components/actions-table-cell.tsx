@@ -5,16 +5,15 @@ import Link from 'next/link'
 import { DeleteProductButton } from '@/app/products/_components/delete-product-button'
 import { Button } from '@/components/ui/button'
 import { TableCell } from '@/components/ui/table'
+import { useAppContext } from '@/providers'
 import { ProductType } from '@/schemaValidations/product.schema'
-import { isClient } from '@/lib/http'
-import { getSessionTokenFromLS } from '@/lib/common'
 
 interface ActionTableCellProps {
   product: ProductType
 }
 
 export function ActionTableCell({ product }: ActionTableCellProps) {
-  const isAuthenticated = isClient && Boolean(getSessionTokenFromLS())
+  const { isAuthenticated } = useAppContext()
 
   if (!isAuthenticated) return null
 

@@ -1,11 +1,10 @@
 'use client'
 
 import { TableHead } from '@/components/ui/table'
-import { getSessionTokenFromLS } from '@/lib/common'
-import { isClient } from '@/lib/http'
+import { useAppContext } from '@/providers'
 
 export function ActionTableHead() {
-  const isAuthenticated = isClient && Boolean(getSessionTokenFromLS())
+  const { isAuthenticated } = useAppContext()
 
   if (!isAuthenticated) return null
 

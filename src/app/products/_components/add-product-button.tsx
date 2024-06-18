@@ -3,11 +3,10 @@
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
-import { getSessionTokenFromLS } from '@/lib/common'
-import { isClient } from '@/lib/http'
+import { useAppContext } from '@/providers'
 
 export function AddProductButton() {
-  const isAuthenticated = isClient && Boolean(getSessionTokenFromLS())
+  const { isAuthenticated } = useAppContext()
 
   if (!isAuthenticated) return null
 

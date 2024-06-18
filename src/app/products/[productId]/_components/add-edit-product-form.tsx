@@ -76,7 +76,7 @@ export function AddEditProductForm({ initialValues }: AddEditProductFormProps) {
           image: imageUrl
         })
       }
-
+      await productService.revalidateProductListFromNextClientToNextServer()
       toast({ description: response?.payload?.message })
       router.push('/products')
     } catch (error: any) {
