@@ -1,2 +1,5 @@
 export * from './product-list'
 export * from './delete-product-button'
+export * from './add-product-button'
+export * from './actions-table-head'
+export * from './actions-table-cell'

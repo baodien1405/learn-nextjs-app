@@ -1,3 +1,5 @@
+import { AccountResType } from '@/schemaValidations/account.schema'
+
 export const getSessionTokenFromLS = () => localStorage.getItem('sessionToken')
 
 export const setSessionTokenToLS = (sessionToken: string) => {
@@ -16,4 +18,14 @@ export const setSessionTokenExpiresAtToLS = (sessionTokenExpiresAt: string) => {
 
 export const removeSessionTokenExpiresAtToLS = () => {
   localStorage.removeItem('sessionTokenExpiresAt')
+}
+
+export const getUserFromLS = () => localStorage.getItem('user')
+
+export const setUserToLS = (user: AccountResType['data'] | null) => {
+  localStorage.setItem('user', JSON.stringify(user))
+}
+
+export const removeUserToLS = () => {
+  localStorage.removeItem('user')
 }

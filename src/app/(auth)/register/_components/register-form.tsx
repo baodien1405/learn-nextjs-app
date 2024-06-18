@@ -13,11 +13,13 @@ import { RegisterBody, RegisterBodyType } from '@/schemaValidations/auth.schema'
 import { authService } from '@/services'
 import { useToast } from '@/components/ui/use-toast'
 import { handleErrorApi } from '@/lib/utils'
+import { useAppContext } from '@/providers'
 
 export function RegisterForm() {
   const { toast } = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const { setUser } = useAppContext()
 
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
@@ -34,13 +36,13 @@ export function RegisterForm() {
       setLoading(true)
       const result = await authService.register(values)
 
-      toast({ description: result.payload.message })
-
       await authService.auth({
         sessionToken: result.payload.data.token,
         expiresAt: result.payload.data.token
       })
 
+      toast({ description: result.payload.message })
+      setUser(result.payload.data.account)
       router.push('/')
       router.refresh()
     } catch (error: any) {

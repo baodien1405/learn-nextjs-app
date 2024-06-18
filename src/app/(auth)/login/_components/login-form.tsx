@@ -13,11 +13,13 @@ import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { useToast } from '@/components/ui/use-toast'
 import { authService } from '@/services'
 import { handleErrorApi } from '@/lib/utils'
+import { useAppContext } from '@/providers'
 
 export function LoginForm() {
   const { toast } = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const { setUser } = useAppContext()
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -32,13 +34,13 @@ export function LoginForm() {
       setLoading(true)
       const result = await authService.login(values)
 
-      toast({ description: result.payload.message })
-
       await authService.auth({
         sessionToken: result.payload.data.token,
         expiresAt: result.payload.data.token
       })
 
+      toast({ description: result.payload.message })
+      setUser(result.payload.data.account)
       router.push('/')
       router.refresh()
     } catch (error: any) {

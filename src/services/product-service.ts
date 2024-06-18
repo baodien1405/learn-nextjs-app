@@ -10,7 +10,9 @@ import {
 export const productService = {
   getAll() {
     return http.get<ProductListResType>('/products', {
-      cache: 'no-store'
+      next: {
+        tags: ['products']
+      }
     })
   },
 

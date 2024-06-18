@@ -1,22 +1,19 @@
+'use client'
+
 import Link from 'next/link'
 
 import { LogoutButton } from '@/components/logout-button'
 import { ModeToggle } from '@/components/mode-toggle'
-import { AccountResType } from '@/schemaValidations/account.schema'
+import { useAppContext } from '@/providers'
 
-interface HeaderProps {
-  user: AccountResType['data'] | null
-}
+export default function Header() {
+  const { user } = useAppContext()
 
-export default async function Header({ user }: HeaderProps) {
   return (
     <div className="flex gap-5 items-center justify-end p-2">
       <ul className="flex gap-4 items-center">
         <li>
           <Link href="/products">Products</Link>
-        </li>
-        <li>
-          <LogoutButton />
         </li>
         {user ? (
           <>

@@ -6,7 +6,6 @@ import Header from '@/components/header'
 import SlideSession from '@/components/slide-session'
 import { Toaster } from '@/components/ui/toaster'
 import { AppProvider, ThemeProvider } from '@/providers'
-import { AccountResType } from '@/schemaValidations/account.schema'
 
 import './globals.css'
 
@@ -26,16 +25,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  let user: AccountResType['data'] | null = null
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <Toaster />
 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <AppProvider user={user}>
-            <Header user={user} />
+          <AppProvider>
+            <Header />
             {children}
             <SlideSession />
           </AppProvider>

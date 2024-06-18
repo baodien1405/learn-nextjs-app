@@ -5,25 +5,25 @@ import { Suspense, useEffect } from 'react'
 
 import { authService } from '@/services'
 import { getSessionTokenFromLS } from '@/lib/common'
+import { useAppContext } from '@/providers'
 
 function LogoutLogic() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const sessionToken = searchParams.get('sessionToken')
+  const { setUser } = useAppContext()
 
   useEffect(() => {
     const controller = new AbortController()
     const signal = controller.signal
 
-    const handleLogout = async () => {
-      try {
-        await authService.logoutFromNextClientToNextServer(true, signal)
+    if (sessionToken === getSessionTokenFromLS()) {
+      authService.logoutFromNextClientToNextServer(true, signal).then((res) => {
+        setUser(null)
         router.push(`/login?redirectForm=${pathname}`)
-      } catch (error) {}
+      })
     }
-
-    if (sessionToken === getSessionTokenFromLS()) handleLogout()
 
     return () => controller.abort()
   }, [router, sessionToken, pathname])

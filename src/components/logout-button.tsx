@@ -8,11 +8,13 @@ import { Button } from '@/components/ui/button'
 import { handleErrorApi } from '@/lib/utils'
 import { authService } from '@/services'
 import { removeSessionTokenExpiresAtToLS, removeSessionTokenToLS } from '@/lib/common'
+import { useAppContext } from '@/providers'
 
 export function LogoutButton() {
   const router = useRouter()
   const pathname = usePathname()
   const [loading, setLoading] = useState(false)
+  const { setUser } = useAppContext()
 
   const handleLogout = async () => {
     try {
@@ -25,6 +27,7 @@ export function LogoutButton() {
         router.push(`/login?redirectForm=${pathname}`)
       })
     } finally {
+      setUser(null)
       setLoading(false)
       router.refresh()
       removeSessionTokenToLS()

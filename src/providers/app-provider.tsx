@@ -1,23 +1,49 @@
 'use client'
 
-import { Dispatch, ReactNode, SetStateAction, createContext, useState } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
 
+import { getUserFromLS, setUserToLS } from '@/lib/common'
 import { AccountResType } from '@/schemaValidations/account.schema'
 
 type User = AccountResType['data'] | null
 
 interface AppContextInterface {
   user: User
-  setUser: Dispatch<SetStateAction<User>>
+  setUser: (user: User) => void
+  isAuthenticated: boolean
 }
 
 const AppContext = createContext<AppContextInterface>({
   user: null,
-  setUser: () => {}
+  setUser: () => {},
+  isAuthenticated: false
 })
 
-export function AppProvider({ children, user: userProps }: { children: ReactNode; user: User }) {
-  const [user, setUser] = useState(userProps)
+export const useAppContext = () => {
+  const context = useContext(AppContext)
 
-  return <AppContext.Provider value={{ user, setUser }}>{children}</AppContext.Provider>
+  if (!context) throw Error('context must be in useAppContext')
+
+  return context
+}
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [user, setUserState] = useState<User>(null)
+
+  useEffect(() => {
+    const _user = getUserFromLS()
+    setUserState(_user ? JSON.parse(_user) : null)
+  }, [setUserState])
+
+  const isAuthenticated = Boolean(user)
+
+  const setUser = useCallback(
+    (user: User) => {
+      setUserState(user)
+      setUserToLS(user)
+    },
+    [setUserState]
+  )
+
+  return <AppContext.Provider value={{ user, setUser, isAuthenticated }}>{children}</AppContext.Provider>
 }
